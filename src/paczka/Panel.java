@@ -43,6 +43,7 @@ class Panel extends JPanel implements MouseListener
 	private JButton eksportButton;
 	private JButton importButton;
 	private JButton boundriesColoringButton;
+	private JButton startWithInclusions;
 	private JTextArea widthArea;
 	private JTextArea heightArea;
 	private JTextArea numberOfColorsArea;
@@ -87,7 +88,9 @@ class Panel extends JPanel implements MouseListener
 		@Override
 		public void run() 
 		{
-			Panel.this.set_begining3();  // TODO For testing maybe remove
+			//Panel.this.set_begining3();  // TODO For testing maybe remove
+
+			Panel.this.set_beging_iclusion_start();
 			while(true)
 			{
 				if(monte_carlo.isSelected())
@@ -518,6 +521,22 @@ class Panel extends JPanel implements MouseListener
 			}
 		});
 
+		startWithInclusions = new JButton("START WITH INCLUSIONS");
+		startWithInclusions.setBounds(613, 70, 150, 23);
+		startWithInclusions.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent arg0)
+			{
+				height = Integer.parseInt(heightArea.getText());
+				width = Integer.parseInt(widthArea.getText());
+				numberOfColors = Integer.parseInt(numberOfColorsArea.getText());
+				numberOfInclusions = numberOfInclusionsArea.getText().equalsIgnoreCase("") ?  5 : Integer.parseInt(numberOfInclusionsArea.getText());
+				inclusionRadius = inclusionRadiusArea.getText().equalsIgnoreCase("") ?  10 : Integer.parseInt(inclusionRadiusArea.getText());
+				compute();
+			}
+		});
+
 		lpd = new JCheckBox("Losowanie podczas dzialania");
 		lpd.setSelected(true);
 		lpd.setBounds(613, 102, 211, 23);
@@ -562,6 +581,7 @@ class Panel extends JPanel implements MouseListener
 		add(inclusionRadiusArea);
 		add(inclusionRadiusLabel);
 		add(comboBox);
+		add(startWithInclusions);
 		//add(comboBox2);
 		//add(comboBoxSpace);
 		add(showButton);
@@ -717,6 +737,41 @@ class Panel extends JPanel implements MouseListener
 				}
 			}
 		}
+	}
+
+	protected void set_beging_iclusion_start(){
+
+		for (int i = 0; i < numberOfInclusions; i++) {
+
+			int x_rand = rand.nextInt(width);
+			int y_rand = rand.nextInt(height);
+			drawRectangle(x_rand, y_rand, inclusionRadius);
+		}
+
+
+		for(int i = 0; i < numberOfColors; i++){
+			int xrw = rand.nextInt(width);
+			int yrw = rand.nextInt(height);
+			if(!tab1[xrw][yrw].isZywa()) {
+				Color kolor;
+				int new_id;
+				do {
+					//kolor = rand_color();
+					kolor = generateRandColor();                  // TO REMOVE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+					new_id = rand_id();                     //TODO test new ids
+				}
+				//while(kolor == Color.WHITE);
+				while (kolor.equals(Color.WHITE));
+				tab1[xrw][yrw].setColor(kolor);
+				tab1[xrw][yrw].setID(new_id);                 //TODO test new ids
+				tab1[xrw][yrw].setZywa(false);
+				//tab1[xrw][yrw].setZywa(true);
+
+			}
+
+		}
+
+
 	}
 
 
@@ -1252,6 +1307,7 @@ private List<Komorka> daj_sasiadow(int x , int y)
 				listOfNeighbourColors.stream().collect(Collectors.groupingBy(w -> w, Collectors.counting()));
 
 		occurrences.remove(Color.WHITE);
+		occurrences.remove(Color.BLACK);
 		if(occurrences.size() == 0)
 			occurrences.put(komorka.getColor(),1l);
 		long max = Collections.max(occurrences.values());
@@ -1287,7 +1343,7 @@ private List<Komorka> daj_sasiadow(int x , int y)
 				g.fillRect(i * 2, j * 2, 2, 2);
 			}
     }
-	@Override
+	/*@Override
 	public void mouseClicked(MouseEvent arg0) 
 	{
 		int x = arg0.getX();
@@ -1349,12 +1405,27 @@ private List<Komorka> daj_sasiadow(int x , int y)
 			
 			Panel.this.repaint();
 		}
-	}
+	}*/
 	@Override
-	public void mouseEntered(MouseEvent arg0) 
+	public void mouseClicked(MouseEvent arg0)
 	{
+		int x = arg0.getX();
+		int y = arg0.getY()+105;
+		//int y = arg0.getY();
+		Color chosenColorByClick;
+		System.out.println("klikniecie " + x + " " + y);
+		if(x > 0 && x < width  && y > 105 && y < height  ){
+			System.out.println("klikniecie w panelu");
+			chosenColorByClick = tab1[x][y].getColor();
+			System.out.println("kolor chosen " + chosenColorByClick);
+
+		}
 		// TODO Auto-generated method stub
 	}
+
+	@Override
+	public void mouseEntered(MouseEvent arg0)
+	{}
 	@Override
 	public void mouseExited(MouseEvent arg0) 
 	{
